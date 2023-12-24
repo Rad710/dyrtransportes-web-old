@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gastos de {{chofer}}</title>
+    <!-- Agrega la referencia a Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
+</head>
+
+<body>
+    <div class="container mt-1 mb-1 ml-5">
+        <a href="/" class="btn btn-light">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door"
+                viewBox="0 0 16 16">
+                <path d="M8 1.293l6 6V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-6.707l6-6a.5.5 0 0 1 .707 0z" />
+                <path d="M7 1v6h2V1H7z" />
+                <path fill-rule="evenodd"
+                    d="M0 14a1 1 0 0 1 1-1h1v-1a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2v-1z" />
+            </svg> Inicio
+        </a>
+        <h2 class="medium text-muted mb-4">Gastos de {{ chofer }}. Planilla del {{ fecha }}</h2>
+    </div>
+
+    <div class="container mt-2 ml-5">
+        <form method="POST" action="{{ url_for('add_gasto', chofer=chofer, fecha_de_liquidacion=fecha) }}"
+            class="needs-validation" novalidate onsubmit="return validarFormulario()">
+            <form method="POST" action="{{ url_for('add_gasto', chofer=chofer, fecha_de_liquidacion=fecha) }}"
+                class="needs-validation" novalidate onsubmit="return validarFormulario()">
+                <div class="form-row">
+                    <div class="col-md-2 mb-3">
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" name="fecha" id="fecha" class="form-control" required max="2999-12-31">
+                        <div class="invalid-feedback">
+                            Ingrese una fecha válida
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="boleta">Boleta:</label>
+                        <input type="text" name="boleta" id="boleta" class="form-control" required>
+                        <div class="invalid-feedback">
+                            Ingrese un número válido
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="importe">Importe:</label>
+                        <input type="text" name="importe" id="importe" class="form-control" required>
+                        <div class="invalid-feedback">
+                            Ingrese un número válido
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                        <button type="button" class="btn btn-primary eliminar">Eliminar</button>
+                    </div>
+                </div>
+            </form>
+        </form>
+
+        <table id="tabla-gastos-header" class="table">
+            <thead>
+                <tr>
+                    <th>Efectivo</th>
+                    <th>Gasoil</th>
+                </tr>
+            </thead>
+        </table>
+
+        <div id="tabla-container">
+            <!-- Aquí irá la tabla -->
+        </div>
+
+    </div>
+
+    <!-- Agrega la referencia a Bootstrap JS y Popper.js (necesario para los componentes interactivos de Bootstrap) -->
+    <script src="{{ url_for('static', filename='dependencies/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dependencies/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dependencies/bootstrap.min.js') }}"></script>
+
+    <!-- Incluye las librerías de jQuery UI para el autocompletado -->
+    <script src="{{ url_for('static', filename='dependencies/jquery-ui.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dependencies/jquery-ui.css') }}">
+
+    <script>
+        $(document).ready(function () {
+            // Captura el evento de presionar tecla en los campos de entrada
+            $("input").keydown(function (e) {
+                // Si la tecla presionada es "Enter"
+                if (e.key === "Enter") {
+                    // Encuentra el índice del campo de entrada actual
+                    var index = $("input").index(this);
+
+                    // Encuentra el siguiente campo de entrada
+                    var nextInput = $("input").eq(index + 1);
+
+                    // Si hay un siguiente campo, enfócalo
+                    if (nextInput.length && nextInput.attr("type") !== "checkbox") {
+                        nextInput.focus();
+                    } else {
+                        // Si no hay un siguiente campo, envía el formulario
+                        $("form").submit();
+                    }
+                    e.preventDefault(); // Evita el comportamiento por defecto de "Enter"
+                }
+            });
+
+            // Función para cargar la tabla usando AJAX
+            function loadTabla() {
+                $.ajax({
+                    url: "{{ url_for('tabla_gastos', chofer=chofer, fecha=fecha) }}",
+                    type: "GET",
+                    success: function (data) {
+                        // Inserta la tabla en el div con id "tabla-container"
+                        $("#tabla-container").html(data);
+                    }
+                });
+            }
+
+            // Llama a la función de carga de tabla cuando la página se carga
+            loadTabla();
+
+            var selectedIds = [];
+
+            $('#tabla-container').on('change', 'input[type="checkbox"]', function () {
+                var checkboxValue = $(this).val();
+
+                if ($(this).prop('checked')) {
+                    selectedIds.push(checkboxValue);
+                } else {
+                    selectedIds = selectedIds.filter(function (id) {
+                        return id !== checkboxValue;
+                    });
+                }
+            });
+
+            $('.btn.btn-primary.eliminar').click(function () {
+                selectedIds.forEach(function (id) {
+                    if (id !== '') {
+                        $.ajax({
+                            url: '/borrar_gasto/' + id,
+                            type: 'POST',
+                            success: function (response) {
+                                console.log('Respuesta exitosa para ID ' + id + ':', response);
+                                loadTabla();
+                            },
+                            error: function (error) {
+                                console.log('Error para ID ' + id + ':', error);
+                                alert(error);
+                            }
+                        });
+                    }
+                });
+                selectedIds = [];
+            });
+        });
+
+        function validarFormulario() {
+            var campos = document.querySelectorAll('.needs-validation input[required]');
+            var formValido = true;
+
+            campos.forEach(function (campo) {
+                if (campo.name !== 'boleta' && campo.value.trim() === '') {
+                    formValido = false;
+                    campo.classList.add('is-invalid');
+                    // Puedes mostrar un mensaje de error aquí
+                } else {
+                    campo.classList.remove('is-invalid');
+                }
+            });
+
+            return formValido;
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Planillas del {{ year }}</title>
+    <!-- Agrega aquí tus referencias CSS de Bootstrap u otros estilos -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
+</head>
+
+<body>
+    <div class="container mt-1 mb-1">
+        <a href="/" class="btn btn-light">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door"
+                viewBox="0 0 16 16">
+                <path d="M8 1.293l6 6V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-6.707l6-6a.5.5 0 0 1 .707 0z" />
+                <path d="M7 1v6h2V1H7z" />
+                <path fill-rule="evenodd"
+                    d="M0 14a1 1 0 0 1 1-1h1v-1a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2v-1z" />
+            </svg> Inicio
+        </a>
+        <h2>Planillas del {{ year }}</h2>
+    </div>
+
+    <div class="container mt-2 ml-5">
+        <form method="POST" action="{{ url_for('add_planilla', year=year) }}" class="needs-validation" novalidate>
+            <div class="form-row">
+                <div class="col-md-2 mb-3">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" name="fecha" class="form-control" required>
+                    <div class="invalid-feedback">
+                        Please provide a valid date.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Agregar</button>
+                <button type="button" class="btn btn-primary exportar-planillas">Exportar</button>
+            </div>
+        </form>
+
+        <ul id="lista-planillas" class="list-group">
+            <!-- Aquí se cargarán dinámicamente las fechas de las planillas -->
+        </ul>
+
+    </div>
+
+
+    <!-- Agrega la referencia a Bootstrap JS y Popper.js (necesario para los componentes interactivos de Bootstrap) -->
+    <script src="{{ url_for('static', filename='dependencies/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dependencies/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dependencies/bootstrap.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            // Función para cargar las fechas de planillas usando Ajax
+            function cargarFechasPlanillas() {
+                $.ajax({
+                    url: "{{ url_for('get_planillas') }}",
+                    data: { "year": "{{year}}" },
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        var lista = '';
+                        for (var i = 0; i < data.length; i++) {
+                            lista += '<li id="lista-planillas" class="list-group-item">';
+                            lista += '<label>';
+                            lista += '<input type="checkbox" name="cobranza" value="' + data[i] + '">'; // Agregar el checkbox
+                            lista += '<a href="/cobranzas/' + data[i] + '">  ' + data[i] + '</a>';
+                            lista += '</label>';
+                            lista += '</li>';
+                        }
+                        $('#lista-planillas').html(lista);
+                    },
+                    error: function (error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            // Cargar las fechas de planillas al cargar la página
+            cargarFechasPlanillas();
+
+            var selectedIds = [];
+
+            $('#lista-planillas').on('change', 'input[type="checkbox"]', function () {
+                var checkboxValue = $(this).val();
+
+                if ($(this).prop('checked')) {
+                    selectedIds.push(checkboxValue);
+                } else {
+                    selectedIds = selectedIds.filter(function (id) {
+                        return id !== checkboxValue;
+                    });
+                }
+            });
+
+            $('.btn.btn-primary.exportar-planillas').click(function () {
+                if (selectedIds.length) {
+                    $.ajax({
+                        url: "{{ url_for('exportar_informe') }}",
+                        data: { "lista": selectedIds.join(',') },
+                        type: 'GET',
+                        xhrFields: {
+                            responseType: 'blob'
+                        },
+                        success: function (data) {
+                            var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                            var link = document.createElement('a');
+                            link.href = URL.createObjectURL(blob);
+                            link.download = 'informe.xlsx';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        },
+                        error: function (error) {
+                            alert('Error al descargar informe!');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Agregar evento de escucha al formulario para mostrar una alerta en caso de error
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                alert('Por favor, complete los campos correctamente.');
+            }
+            form.classList.add('was-validated');
+        });
+    </script>
+
+
+</body>
+
+</html>

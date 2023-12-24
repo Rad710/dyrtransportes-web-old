@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquidacion de {{ chofer }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
+    <style>
+        .slider-container {
+            display: inline-block;
+            position: relative;
+        }
+
+        .slider {
+            position: absolute;
+            width: auto;
+            border-radius: 15px;
+            background-color: gray;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .slider-text {
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .slider.on {
+            background-color: #28a745;
+        }
+
+        .slider-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: white;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .slider.on .slider-circle {
+            transform: translateX(calc(100% - 30px));
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-1 mb-1">
+        <a href="/" class="btn btn-light">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door"
+                viewBox="0 0 16 16">
+                <path d="M8 1.293l6 6V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-6.707l6-6a.5.5 0 0 1 .707 0z" />
+                <path d="M7 1v6h2V1H7z" />
+                <path fill-rule="evenodd"
+                    d="M0 14a1 1 0 0 1 1-1h1v-1a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2v-1z" />
+            </svg> Inicio
+        </a>
+        <h2>Liquidaciones de {{ chofer }}</h2>
+
+        <div class="col-md-6">
+            <div class="slider-container">
+                <div class="slider" id="viajesSlider">
+                    <div class="slider-text">No Pagado</div>
+                    <div class="slider-circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-md-2 mb-5">
+                <a href="{{ url_for('exportar_liquidacion', chofer=chofer, fecha=fecha) }}"  
+                class="btn btn-secondary btn-lg btn-block" id="exportarBtn">Exportar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mt-10">
+            <div class="col-md-6">
+                <a href="{{ url_for('viajes', chofer=chofer, fecha=fecha) }}" class="btn btn-primary btn-lg btn-block"
+                    id="viajesBtn">Viajes</a>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ url_for('gastos', chofer=chofer, fecha=fecha) }}" class="btn btn-secondary btn-lg btn-block"
+                    id="gastosBtn">Gastos</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='dependencies/jquery.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $(".slider").click(function () {
+                $(this).toggleClass("on");
+                if ($(this).hasClass("on")) {
+                    $(".slider-text", this).text("Pagado");
+                    $.ajax({
+                        url: "{{ url_for('liquidacion_pagado', chofer=chofer, fecha=fecha) }}",
+                        type: 'POST',
+                        dataType: 'json'
+                    });
+                } else {
+                    $(".slider-text", this).text("No Pagado");
+                }
+            });
+
+
+            function togglePagado() {
+                $.ajax({
+                    url: "{{ url_for('get_liquidaciones_pagado', chofer=chofer, fecha=fecha) }}",
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data) {
+                            $(".slider").toggleClass("on");
+                            $(".slider-text", ".slider").text("Pagado");
+                        }
+                    },
+                    error: function (error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            // Cargar las fechas de planillas al cargar la página
+            togglePagado();
+        });
+    </script>
+</body>
+
+</html>

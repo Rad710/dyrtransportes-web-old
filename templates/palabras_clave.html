@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palabras Clave</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
+</head>
+
+<body>
+    <div class="container mt-1 mb-1">
+        <a href="/" class="btn btn-light">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+                <path d="M8 1.293l6 6V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-6.707l6-6a.5.5 0 0 1 .707 0z"/>
+                <path d="M7 1v6h2V1H7z"/>
+                <path fill-rule="evenodd" d="M0 14a1 1 0 0 1 1-1h1v-1a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2v-1z"/>
+            </svg> Inicio
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-6">
+                <a href="{{ url_for('lista_claves', tipo='chofer') }}" class="btn btn-primary btn-lg btn-block" id="choferBtn">Choferes</a>
+            </div>
+        </div>
+    
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-6">
+                <a href="{{ url_for('lista_claves', tipo='origen') }}"  class="btn btn-block btn-lg btn-primary" id="origenBtn">Origen</a>
+            </div>
+        </div>
+    
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-6">
+                <a href="{{ url_for('lista_claves', tipo='destino') }}"  class="btn btn-primary btn-lg btn-block" id="destinoBtn">Destino</a>
+            </div>
+        </div>
+    
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-6">
+                <a href="{{ url_for('lista_claves', tipo='producto') }}"  class="btn btn-primary btn-lg btn-block" id="productoBtn">Producto</a>
+            </div>
+        </div>
+
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-6">
+                <a href="{{ url_for('lista_claves', tipo='chapa') }}"  class="btn btn-primary btn-lg btn-block" id="chapaBtn">Chapas</a>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='dependencies/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dependencies/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dependencies/bootstrap.min.js') }}"></script>
+</body>
+
+</html>

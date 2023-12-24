@@ -1,0 +1,50 @@
+<table id="tabla-cobranzas" class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th> <!-- Columna para las casillas de verificación -->
+            <th style="display:none">ID</th> <!-- Columna para el ID invisible -->
+            <th>Fecha</th>
+            <th>Chofer</th>
+            <th>Chapa</th>
+            <th>Producto</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Tiquet</th>
+            <th>Kilos Origen</th>
+            <th>Kilos Destino</th>
+            <th>Dif. Tol.</th>
+            <th>Precio</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cobranza in cobranzas %}
+        <tr>
+            <td><input type="checkbox" name="selected_rows[]" value="{{ cobranza.id }}"></td>
+            <td style="display:none">{{ cobranza.id }}</td>
+            <td>{{ cobranza.fecha.strftime('%d/%m/%Y') }}</td>
+            <td>{{ cobranza.chofer }}</td>
+            <td>{{ cobranza.chapa }}</td>
+            <td>{{ cobranza.producto }}</td>
+            <td>{{ cobranza.origen }}</td>
+            <td>{{ cobranza.destino }}</td>
+            <td>{{ cobranza.tiquet }}</td>
+            <td>{{ cobranza.kilos_origen }}</td>
+            <td>{{ cobranza.kilos_destino }}</td>
+            <td>{{ cobranza.diferencia_de_tolerancia }}</td>
+            <td>{{ cobranza.precio }}</td>
+            <td>{{ cobranza.total }}</td>
+        </tr>
+        {% set current_group = (cobranza.origen, cobranza.destino) %}
+        {% if cambio_de_grupo[current_group] == cobranza.tiquet %}
+        <tr>
+            <td colspan="8" class="text-center"><strong>Subtotal:</strong></td>
+            <td><strong>{{ subtotales_origen[current_group] }}</strong></td>
+            <td><strong>{{ subtotales_destino[current_group] }}</strong></td>
+            <td><strong>{{ subtotales_dif[current_group] }}</strong></td>
+            <td colspan="2" class="text-right"><strong>{{ subtotales[current_group] }}</strong></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>

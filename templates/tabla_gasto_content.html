@@ -1,0 +1,31 @@
+<table id="tabla-gastos" class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th> <!-- Columna para las casillas de verificación -->
+            <th style="display:none">ID</th> <!-- Columna para el ID invisible -->
+            <th>Fecha</th>
+            <th>Importe Gs.</th>
+            <th></th> <!-- Columna para las casillas de verificación -->
+            <th style="display:none">ID</th> <!-- Columna para el ID invisible -->
+            <th>Fecha</th>
+            <th>Boleta N°</th>
+            <th>Importe Gs.</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sin_boleta, con_boleta in results %}
+        <tr>
+            <td><input type="checkbox" name="selected_rows[]" value="{{ sin_boleta.id if sin_boleta is not none else '' }}"></td>
+            <td style="display:none">{{ sin_boleta.id if sin_boleta is not none else '' }}</td>
+            <td>{{ sin_boleta.fecha.strftime('%d/%m/%Y') if sin_boleta and sin_boleta.fecha is not none else '' }}</td>
+            <td>{{ sin_boleta.importe if sin_boleta is not none else '' }}</td>
+
+            <td><input type="checkbox" name="selected_rows[]" value="{{ con_boleta.id if con_boleta is not none else '' }}"></td>
+            <td style="display:none">{{ con_boleta.id if con_boleta is not none else '' }}</td>
+            <td>{{ con_boleta.fecha.strftime('%d/%m/%Y') if con_boleta and con_boleta.fecha is not none else '' }}</td>
+            <td>{{ con_boleta.boleta if con_boleta is not none else '' }}</td>
+            <td>{{ con_boleta.importe if con_boleta is not none else '' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

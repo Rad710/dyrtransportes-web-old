@@ -1,0 +1,20 @@
+<table id="tabla-cobranzas" class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th> <!-- Columna para las casillas de verificación -->
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Precio</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for precio in precios %}
+        <tr>
+            <td><input type="checkbox" name="selected_rows[]" value="{{ precio.origen }},{{ precio.destino }},{{ precio.precio }}"></td>
+            <td>{{ precio.origen }}</td>
+            <td>{{ precio.destino }}</td>
+            <td>{{ precio.precio }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

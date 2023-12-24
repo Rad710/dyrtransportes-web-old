@@ -1,0 +1,36 @@
+<table id="tabla-cobranzas" class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th> <!-- Columna para las casillas de verificación -->
+            <th style="display:none">ID</th> <!-- Columna para el ID invisible -->
+            <th>Fecha</th>
+            <th>Producto</th>
+            <th>Recepcion N°</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Kilos Origen</th>
+            <th>Kilos Destino</th>
+            <th>Dif.</th>
+            <th>Gs. p/ KILO</th>
+            <th>Importe Gs.</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cobranza, liquidacion in results %}
+        <tr>
+            <td><input type="checkbox" name="selected_rows[]" value="{{ cobranza.id }}"></td>
+            <td style="display:none">{{ cobranza.id }}</td>
+            <td>{{ cobranza.fecha.strftime('%d/%m/%Y') }}</td>
+            <td>{{ cobranza.producto }}</td>
+            <td>{{ cobranza.tiquet }}</td>
+            <td>{{ cobranza.origen }}</td>
+            <td>{{ cobranza.destino }}</td>
+            <td>{{ cobranza.kilos_origen }}</td>
+            <td>{{ cobranza.kilos_destino }}</td>
+            <td>{{ cobranza.diferencia }}</td>
+            <td>{{ liquidacion.precio }}</td>
+            <td>{{ liquidacion.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
